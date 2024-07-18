@@ -15,7 +15,7 @@ describe("string literal code generation", function()
 
 
       local _source_new_lines_get_preserved = 0
-   ]]))
+   ]], "5.1"))
 
    it("does not substitute escape sequences in [[strings]]", util.gen([==[
       local _literal_string = [[
@@ -29,5 +29,5 @@ describe("string literal code generation", function()
          \000\xee\u{ffffff}
          bar
       ]]
-   ]==]))
+   ]==], "5.1"))
 end)

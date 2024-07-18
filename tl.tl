@@ -4316,40 +4316,42 @@ function tl.pretty_print_ast(ast: Node, gen_target: TargetMode, mode: boolean | 
                out.h = out.h + 1
             end
 
-            replaced = replaced:gsub("()\\z(%s*)", function(index_in_disguise: string, ws: string): string
-               local index <const> = index_in_disguise as integer - 1
-               if replaced:sub(index, index) == "\\" then
-                  return "\\z" .. ws
-               end
-               for _ in ws:gmatch("\n") do
-                  out.h = out.h - 1
-               end
-               return ""
-            end)
+            if gen_target == "5.1" and string.find(replaced, "\\", 1, true) then
+               replaced = replaced:gsub("()\\z(%s*)", function(index_in_disguise: string, ws: string): string
+                  local index <const> = index_in_disguise as integer - 1
+                  if replaced:sub(index, index) == "\\" then
+                     return "\\z" .. ws
+                  end
+                  for _ in ws:gmatch("\n") do
+                     out.h = out.h - 1
+                  end
+                  return ""
+               end)
 
-            replaced = replaced:gsub("()\\x(..)", function(index_in_disguise: string, digits: string): string
-               local index <const> = index_in_disguise as integer - 1
-               if replaced:sub(index, index) == "\\" then
-                  return "\\x" .. digits
-               end
-               local byte <const> = tonumber(digits, 16)
-               return byte and string.format("\\%03d", byte) or "\\x" .. digits
-            end)
+               replaced = replaced:gsub("()\\x(..)", function(index_in_disguise: string, digits: string): string
+                  local index <const> = index_in_disguise as integer - 1
+                  if replaced:sub(index, index) == "\\" then
+                     return "\\x" .. digits
+                  end
+                  local byte <const> = tonumber(digits, 16)
+                  return byte and string.format("\\%03d", byte) or "\\x" .. digits
+               end)
 
-            replaced = replaced:gsub("()\\u{(.-)}", function(index_in_disguise: string, hex_digits: string): string
-               local index <const> = index_in_disguise as integer - 1
-               if replaced:sub(index, index) == "\\" then
-                  return "\\u{" .. hex_digits .. "}"
-               end
-               local codepoint <const> = tonumber(hex_digits, 16)
-               if not codepoint then
-                  return "\\000"
-               end
-               local sequence <const> = utf8.char(codepoint)
-               return (sequence:gsub(".", function(c: string): string
-                  return ("\\%03d"):format(string.byte(c))
-               end))
-            end)
+               replaced = replaced:gsub("()\\u{(.-)}", function(index_in_disguise: string, hex_digits: string): string
+                  local index <const> = index_in_disguise as integer - 1
+                  if replaced:sub(index, index) == "\\" then
+                     return "\\u{" .. hex_digits .. "}"
+                  end
+                  local codepoint <const> = tonumber(hex_digits, 16)
+                  if not codepoint then
+                     return "\\000"
+                  end
+                  local sequence <const> = utf8.char(codepoint)
+                  return (sequence:gsub(".", function(c: string): string
+                     return ("\\%03d"):format(string.byte(c))
+                  end))
+               end)
+            end
 
             out[1] = replaced
             return out

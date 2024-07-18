@@ -550,7 +550,7 @@ local function gen(lax, code, expected, gen_target)
       assert.same({}, syntax_errors, "Code was not expected to have syntax errors")
       local result = tl.type_check(ast, { filename = "foo.tl", lax = lax, gen_target = gen_target })
       assert.same({}, result.type_errors)
-      local output_code = tl.pretty_print_ast(ast)
+      local output_code = tl.pretty_print_ast(ast, gen_target)
 
       local expected_ast, expected_errors = tl.parse(expected, "foo.tl")
       assert.same({}, expected_errors, "Code was not expected to have syntax errors")
